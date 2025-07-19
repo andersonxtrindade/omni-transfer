@@ -21,14 +21,14 @@ describe('UsersService', () => {
       providers: [
         UsersService,
         {
-          provide: getRepositoryToken(Users),
+          provide: getRepositoryToken(Users, 'omni'),
           useFactory: mockUserRepository,
         },
       ],
     }).compile();
 
     service = module.get<UsersService>(UsersService);
-    repository = module.get(getRepositoryToken(Users));
+    repository = module.get(getRepositoryToken(Users, 'omni'));
   });
 
   it('should be defined', () => {

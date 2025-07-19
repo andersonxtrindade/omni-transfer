@@ -9,6 +9,7 @@ import { Users } from './entities/users.entity';
     TypeOrmModule.forFeature([Users], 'omni'),
   ],
   providers: [UsersService],
-  controllers: [UsersController]
+  controllers: [UsersController],
+  exports: [UsersService], 
 })
 export class UsersModule {}
