@@ -10,7 +10,7 @@ export class UsersService {
   constructor(
     @InjectRepository(Users, 'omni')
     private readonly userRepository: Repository<Users>,
-  ) {}
+  ) { }
 
   async create(data: CreateUserDto): Promise<{ id: string }> {
     const existing = await this.userRepository.findOne({ where: { username: data.username } });
@@ -26,5 +26,9 @@ export class UsersService {
 
     const saved = await this.userRepository.save(user);
     return { id: saved.id };
+  }
+
+  async findByUsername(username: string): Promise<Users | null> {
+    return this.userRepository.findOne({ where: { username } });
   }
 }
