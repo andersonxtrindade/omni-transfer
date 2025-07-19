@@ -11,6 +11,7 @@ import { ConfigModule } from '@nestjs/config';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
+      name: 'omni',
       type: 'postgres',
       url: process.env.DATABASE_URL,
       autoLoadEntities: true,
