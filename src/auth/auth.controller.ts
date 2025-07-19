@@ -5,11 +5,11 @@ import { LoginDto } from './dtos/login.dto';
 import { TokenResponseDto } from './dtos/token-response.dto';
 
 @ApiTags('Auth')
-@Controller('auth')
+@Controller('users')
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
-    @Post('login')
+    @Post('signin')
     @ApiBody({ type: LoginDto })
     @ApiOkResponse({ type: TokenResponseDto })
     async login(@Body() body: LoginDto) {
