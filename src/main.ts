@@ -13,10 +13,13 @@ import { createBullBoard } from '@bull-board/api';
 import { BullAdapter } from '@bull-board/api/bullAdapter';
 import { ExpressAdapter as BullBoardAdapter } from '@bull-board/express';
 import { Express } from 'express';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
   const server = express();
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
+
+  app.useLogger(app.get(Logger));
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -29,8 +32,15 @@ async function bootstrap() {
   await setupSwagger(app);
   await setupBullBoard(app, server);
 
+  const port = process.env.PORT ?? 3000;
+
   await app.init();
-  await server.listen(process.env.PORT ?? 3000);
+  await server.listen(port);
+
+  const logger = app.get(Logger);
+  
+  logger.log(`🚀 Application running on http://localhost:${port}`);
+  logger.log(`📊 Bull Board at http://localhost:${port}/admin/queues`);
 }
 
 async function setupSwagger(app: INestApplication) {
