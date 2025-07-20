@@ -14,8 +14,11 @@ import { BullAdapter } from '@bull-board/api/bullAdapter';
 import { ExpressAdapter as BullBoardAdapter } from '@bull-board/express';
 import { Express } from 'express';
 import { Logger } from 'nestjs-pino';
+import { AppDataSource } from './config/ormconfig.migrations';
 
 async function bootstrap() {
+  await AppDataSource.initialize();
+
   const server = express();
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
 
@@ -39,8 +42,8 @@ async function bootstrap() {
 
   const logger = app.get(Logger);
   
-  logger.log(`🚀 Application running on http://localhost:${port}`);
-  logger.log(`📊 Bull Board at http://localhost:${port}/admin/queues`);
+  logger.log(`Application running on http://localhost:${port}`);
+  logger.log(`Bull Board at http://localhost:${port}/admin/queues`);
 }
 
 async function setupSwagger(app: INestApplication) {
