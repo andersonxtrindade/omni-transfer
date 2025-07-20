@@ -4,10 +4,12 @@ import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
 import { DataSource } from 'typeorm';
 import { getDataSourceToken } from '@nestjs/typeorm';
+import { JwtService } from '@nestjs/jwt';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
   let dataSource: DataSource;
+  let jwtService: JwtService;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -18,6 +20,7 @@ describe('UserController (e2e)', () => {
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
     await app.init();
 
+    jwtService = moduleFixture.get(JwtService);
     dataSource = moduleFixture.get<DataSource>(getDataSourceToken('omni'));
   });
 
@@ -86,9 +89,41 @@ describe('UserController (e2e)', () => {
           birthdate: 'invalid-date',
         })
         .expect(400);
-        
+
       expect(response.body.message).toBeInstanceOf(Array);
       expect(response.body.message.length).toBeGreaterThan(0);
     });
-  })
+  });
+
+  describe('/users (GET)', () => {
+    let token: string;
+    let userId: string;
+
+    beforeAll(async () => {
+      const res = await request(app.getHttpServer())
+        .post('/users/signup')
+        .send({
+          username: 'john',
+          password: '123456',
+          birthdate: '2000-01-01',
+        });
+
+      userId = res.body.id;
+
+      token = jwtService.sign({ sub: userId });
+    });
+
+    it('should return list of users', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/users')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body.length).toBeGreaterThan(0);
+      expect(res.body[0]).toHaveProperty('id');
+      expect(res.body[0]).toHaveProperty('username');
+    });
+  });
+
 });

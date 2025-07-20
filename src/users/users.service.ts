@@ -51,4 +51,8 @@ export class UsersService {
 
     await this.userRepository.save([sender, receiver]);
   }
+
+  async getAll() {
+    return this.userRepository.find();
+  }
 }
