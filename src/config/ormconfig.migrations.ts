@@ -12,7 +12,7 @@ export const AppDataSource = new DataSource({
   database: process.env.POSTGRES_DB,
   synchronize: false,
   migrationsTableName: 'typeorm_migrations',
-  migrationsRun: false,
+  migrationsRun: true,
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/../**/databases/migrations/*{.ts,.js}'],
 });
