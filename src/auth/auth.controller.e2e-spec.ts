@@ -23,7 +23,7 @@ describe('AuthController (e2e)', () => {
     const hashedPassword = await bcrypt.hash('password', 10);
     await dataSource.query(
       `INSERT INTO users (id, username, password, birthdate, balance, createdAt, updatedAt)
-       VALUES (1, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+       VALUES ('999555', ?, ?, ?, ?, datetime('now'), datetime('now'))`,
       ['testuser', hashedPassword, '1990-01-01', 1000]
     );
   });
@@ -31,7 +31,7 @@ describe('AuthController (e2e)', () => {
   afterAll(async () => {
     if (dataSource?.isInitialized) {
       await dataSource.query(`DELETE FROM users WHERE username = ?`, ['testuser']);
-    } 
+    }
     try {
       if (dataSource) {
         await dataSource.destroy();
@@ -47,32 +47,34 @@ describe('AuthController (e2e)', () => {
     } catch (err) { }
   });
 
-  it('/users/signin (POST) - success', async () => {
-    const loginDto = {
-      username: 'testuser',
-      password: 'password',
-    };
+  describe('/users/signin (POST)', () => {
+    it(' - success', async () => {
+      const loginDto = {
+        username: 'testuser',
+        password: 'password',
+      };
 
-    const response = await request(app.getHttpServer())
-      .post('/users/signin')
-      .send(loginDto)
-      .expect(200);
+      const response = await request(app.getHttpServer())
+        .post('/users/signin')
+        .send(loginDto)
+        .expect(200);
 
-    expect(response.body).toHaveProperty('access_token');
-    expect(response.body).toHaveProperty('expiresIn');
-  });
+      expect(response.body).toHaveProperty('access_token');
+      expect(response.body).toHaveProperty('expiresIn');
+    });
 
-  it('/users/signin (POST) - fail with wrong password', async () => {
-    const loginDto = {
-      username: 'testuser',
-      password: 'wrong-password',
-    };
+    it('/users/signin (POST) - fail with wrong password', async () => {
+      const loginDto = {
+        username: 'testuser',
+        password: 'wrong-password',
+      };
 
-    const response = await request(app.getHttpServer())
-      .post('/users/signin')
-      .send(loginDto)
-      .expect(401);
+      const response = await request(app.getHttpServer())
+        .post('/users/signin')
+        .send(loginDto)
+        .expect(401);
 
-    expect(response.body.message).toMatch(/invalid credentials/i);
-  });
+      expect(response.body.message).toMatch(/invalid credentials/i);
+    });
+  })
 });
