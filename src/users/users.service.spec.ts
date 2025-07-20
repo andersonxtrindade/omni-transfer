@@ -5,12 +5,20 @@ import { Users } from './entities/users.entity';
 import { Repository } from 'typeorm';
 import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { PinoLogger } from 'nestjs-pino';
 
 const mockUserRepository = () => ({
   findOne: jest.fn(),
   create: jest.fn(),
   save: jest.fn(),
   find: jest.fn(),
+});
+
+const mockLogger = () => ({
+  setContext: jest.fn(),
+  info: jest.fn(),
+  error: jest.fn(),
+  warn: jest.fn()
 });
 
 describe('UsersService', () => {
@@ -24,6 +32,10 @@ describe('UsersService', () => {
         {
           provide: getRepositoryToken(Users, 'omni'),
           useFactory: mockUserRepository,
+        },
+        {
+          provide: PinoLogger,
+          useValue: mockLogger(),
         },
       ],
     }).compile();
@@ -87,6 +99,23 @@ describe('UsersService', () => {
 
       expect(hashSpy).toHaveBeenCalled();
     });
+
+    it('should throw if repository.findOne throws', async () => {
+      repository.findOne.mockRejectedValue(new Error('DB error'));
+      await expect(
+        service.create({ username: 'john', password: '123456', birthdate: '2000-01-01' }),
+      ).rejects.toThrow('DB error');
+    });
+
+    it('should throw if repository.save throws', async () => {
+      repository.findOne.mockResolvedValue(null);
+      repository.create.mockImplementation((dto) => dto as any);
+      repository.save.mockRejectedValue(new Error('Save failed'));
+
+      await expect(
+        service.create({ username: 'john', password: '123456', birthdate: '2000-01-01' }),
+      ).rejects.toThrow('Save failed');
+    });
   });
 
   describe('findByUsername', () => {
@@ -121,7 +150,13 @@ describe('UsersService', () => {
         where: { username: 'nonexistent' },
       });
     });
-  })
+
+    it('should throw if repository.findOne throws', async () => {
+      repository.findOne.mockRejectedValue(new Error('DB error'));
+
+      await expect(service.findByUsername('john')).rejects.toThrow('DB error');
+    });
+  });
 
   describe('transferBalance', () => {
     const sender = {
@@ -140,7 +175,6 @@ describe('UsersService', () => {
         .mockResolvedValueOnce(receiver);
 
       (repository.save as jest.Mock).mockResolvedValue([sender, receiver]);
-
 
       await service.transferBalance('user1', 'user2', 40);
 
@@ -167,8 +201,23 @@ describe('UsersService', () => {
 
       await expect(service.transferBalance('user1', 'user2', 50)).rejects.toThrow(BadRequestException);
     });
-  }); 
-  
+
+    it('should throw if repository.findOne throws', async () => {
+      repository.findOne.mockRejectedValue(new Error('DB error'));
+
+      await expect(service.transferBalance('user1', 'user2', 10)).rejects.toThrow('DB error');
+    });
+
+    it('should throw if repository.save throws', async () => {
+      repository.findOne
+        .mockResolvedValueOnce(sender)
+        .mockResolvedValueOnce(receiver);
+      repository.save.mockRejectedValue(new Error('Save failed'));
+
+      await expect(service.transferBalance('user1', 'user2', 10)).rejects.toThrow('Save failed');
+    });
+  });
+
   describe('getAll', () => {
     it('should return all users', async () => {
       const mockUsers = [
@@ -183,6 +232,11 @@ describe('UsersService', () => {
       expect(result).toEqual(mockUsers);
       expect(repository.find).toHaveBeenCalled();
     });
-  });
 
+    it('should throw if repository.find throws', async () => {
+      repository.find.mockRejectedValue(new Error('DB error'));
+
+      await expect(service.getAll()).rejects.toThrow('DB error');
+    });
+  });
 });

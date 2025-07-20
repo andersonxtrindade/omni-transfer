@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Transfers } from './entities/transfers.entity';
 import { UsersModule } from 'src/users/users.module';
 import { BullModule } from '@nestjs/bull';
-import { TransfersProducer } from './transfer.producer';
+import { TransfersProducer } from './transfers.producer';
 import { TransfersProcessor } from './transfers.processor';
 
 @Module({
