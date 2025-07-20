@@ -14,7 +14,7 @@ export class TransfersProducer {
     await this.transferQueue.add('transfer-job', dto, {
       attempts: 3,
       backoff: 2000,
-      removeOnComplete: true,
+      removeOnComplete: false,
     });
   }
 }
