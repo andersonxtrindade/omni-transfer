@@ -23,9 +23,9 @@ jobs:
       - name: Smoke test app container
         run: |
           docker ps
-          
+
       - name: Tear down
-        run: docker-compose down
+        run: docker compose down
         
   test:
     runs-on: ubuntu-latest
