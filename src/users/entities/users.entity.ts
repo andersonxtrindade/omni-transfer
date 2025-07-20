@@ -14,7 +14,7 @@ export class Users {
   @Column()
   birthdate: string;
 
-  @Column({ type: 'decimal', default: 0 })
+  @Column({ type: 'decimal', default: 100 })
   balance: number;
 
   @CreateDateColumn()
