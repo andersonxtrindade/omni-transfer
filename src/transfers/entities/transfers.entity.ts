@@ -14,11 +14,17 @@ export class Transfers {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @ManyToOne(() => Users, { eager: true })
+    @ManyToOne(
+        /* istanbul ignore next */ () => Users, 
+        { eager: true }
+    )
     @JoinColumn({ name: 'senderId' })
     sender: Users;
 
-    @ManyToOne(() => Users, { eager: true })
+    @ManyToOne(
+        /* istanbul ignore next */ () => Users, 
+        { eager: true }
+    )
     @JoinColumn({ name: 'receiverId' })
     receiver: Users;
 

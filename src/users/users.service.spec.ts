@@ -10,6 +10,7 @@ const mockUserRepository = () => ({
   findOne: jest.fn(),
   create: jest.fn(),
   save: jest.fn(),
+  find: jest.fn(),
 });
 
 describe('UsersService', () => {
@@ -166,5 +167,22 @@ describe('UsersService', () => {
 
       await expect(service.transferBalance('user1', 'user2', 50)).rejects.toThrow(BadRequestException);
     });
+  }); 
+  
+  describe('getAll', () => {
+    it('should return all users', async () => {
+      const mockUsers = [
+        { id: '1', username: 'user1' },
+        { id: '2', username: 'user2' },
+      ] as Users[];
+
+      repository.find.mockResolvedValue(mockUsers);
+
+      const result = await service.getAll();
+
+      expect(result).toEqual(mockUsers);
+      expect(repository.find).toHaveBeenCalled();
+    });
   });
+
 });
