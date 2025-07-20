@@ -14,7 +14,7 @@ export class TransfersService {
         private readonly usersService: UsersService,
     ) { }
 
-    async transfer(dto: CreateTransferDto): Promise<void> {
+    async processTransfer(dto: CreateTransferDto): Promise<void> {
         await this.usersService.transferBalance(dto.fromId, dto.toId, dto.amount);
 
         const transfer = this.transferRepository.create({

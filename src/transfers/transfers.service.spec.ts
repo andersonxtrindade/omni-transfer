@@ -64,7 +64,7 @@ describe('TransfersService', () => {
       transferRepository.create.mockReturnValue(createdTransfer);
       transferRepository.save.mockResolvedValue(createdTransfer);
 
-      await service.transfer(dto);
+      await service.processTransfer(dto);
 
       expect(usersService.transferBalance).toHaveBeenCalledWith('user-1', 'user-2', 100);
       expect(transferRepository.create).toHaveBeenCalledWith({
