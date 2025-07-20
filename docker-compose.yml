@@ -16,7 +16,7 @@ services:
     command: npm run start:dev
 
   postgres:
-    image: postgres:17
+    image: postgres:16
     container_name: omni-transfer-db
     restart: always
     environment:
