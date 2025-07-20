@@ -17,8 +17,8 @@ jobs:
 
       - name: Build and start containers
         run: |
-          docker-compose build
-          docker-compose up -d
+          docker compose build
+          docker compose up -d
 
       - name: Smoke test app container
         run: |
