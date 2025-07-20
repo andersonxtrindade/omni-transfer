@@ -4,6 +4,7 @@ import { AuthModule } from './auth/auth.module';
 import { TransfersModule } from './transfers/transfers.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -21,9 +22,15 @@ import { ConfigModule } from '@nestjs/config';
         synchronize: true,
       }),
     }),
-    UsersModule, 
-    AuthModule, 
+    BullModule.forRoot({
+      redis: {
+        host: 'localhost',
+        port: 6379,
+      },
+    }),
+    UsersModule,
+    AuthModule,
     TransfersModule
   ],
 })
-export class AppModule {}
+export class AppModule { }
