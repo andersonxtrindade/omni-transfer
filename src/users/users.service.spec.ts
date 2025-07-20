@@ -21,14 +21,14 @@ describe('UsersService', () => {
       providers: [
         UsersService,
         {
-          provide: getRepositoryToken(Users),
+          provide: getRepositoryToken(Users, 'omni'),
           useFactory: mockUserRepository,
         },
       ],
     }).compile();
 
     service = module.get<UsersService>(UsersService);
-    repository = module.get(getRepositoryToken(Users));
+    repository = module.get(getRepositoryToken(Users, 'omni'));
   });
 
   it('should be defined', () => {
@@ -85,6 +85,40 @@ describe('UsersService', () => {
       });
 
       expect(hashSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('findByUsername', () => {
+    it('should return a user if found', async () => {
+      const user = {
+        id: 'uuid',
+        username: 'john',
+        password: 'hashed-password',
+        birthdate: '2000-01-01',
+        balance: 100,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      repository.findOne.mockResolvedValue(user);
+
+      const result = await service.findByUsername('john');
+
+      expect(result).toEqual(user);
+      expect(repository.findOne).toHaveBeenCalledWith({
+        where: { username: 'john' },
+      });
+    });
+
+    it('should return null if user is not found', async () => {
+      repository.findOne.mockResolvedValue(null);
+
+      const result = await service.findByUsername('nonexistent');
+
+      expect(result).toBeNull();
+      expect(repository.findOne).toHaveBeenCalledWith({
+        where: { username: 'nonexistent' },
+      });
     });
   })
 });

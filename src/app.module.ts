@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { TransfersModule } from './transfers/transfers.module';
@@ -10,18 +8,22 @@ import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRoot({
+    TypeOrmModule.forRootAsync({
       name: 'omni',
-      type: 'postgres',
-      url: process.env.DATABASE_URL,
-      autoLoadEntities: true,
-      synchronize: true,
+      useFactory: () => ({
+        type: process.env.NODE_ENV === 'test' ? 'sqlite' : 'postgres',
+        database: process.env.NODE_ENV === 'test' ? ':memory:' : process.env.POSTGRES_DB,
+        host: process.env.POSTGRES_HOST,
+        port: 5432,
+        username: process.env.POSTGRES_USER,
+        password: process.env.POSTGRES_PASSWORD,
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true,
+      }),
     }),
     UsersModule, 
     AuthModule, 
     TransfersModule
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
