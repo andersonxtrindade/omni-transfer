@@ -36,7 +36,6 @@ export class UsersService {
       const user = this.userRepository.create({
         ...data,
         password: hashedPassword,
-        balance: 0,
       });
 
       const saved = await this.userRepository.save(user);
