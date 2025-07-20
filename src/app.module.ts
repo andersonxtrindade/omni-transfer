@@ -5,6 +5,7 @@ import { TransfersModule } from './transfers/transfers.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { BullModule } from '@nestjs/bull';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -28,9 +29,10 @@ import { BullModule } from '@nestjs/bull';
         port: 6379,
       },
     }),
+    CommonModule,
     UsersModule,
     AuthModule,
-    TransfersModule
+    TransfersModule,
   ],
 })
 export class AppModule { }
