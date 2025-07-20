@@ -3,7 +3,7 @@ import { UsersService } from './users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Users } from './entities/users.entity';
 import { Repository } from 'typeorm';
-import { ConflictException } from '@nestjs/common';
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 const mockUserRepository = () => ({
@@ -121,4 +121,50 @@ describe('UsersService', () => {
       });
     });
   })
+
+  describe('transferBalance', () => {
+    const sender = {
+      id: 'user1',
+      balance: 100,
+    } as Users;
+
+    const receiver = {
+      id: 'user2',
+      balance: 50,
+    } as Users;
+
+    it('should transfer balance successfully', async () => {
+      repository.findOne
+        .mockResolvedValueOnce(sender)
+        .mockResolvedValueOnce(receiver);
+
+      (repository.save as jest.Mock).mockResolvedValue([sender, receiver]);
+
+
+      await service.transferBalance('user1', 'user2', 40);
+
+      expect(repository.findOne).toHaveBeenCalledTimes(2);
+      expect(sender.balance).toBe(60);
+      expect(receiver.balance).toBe(90);
+      expect(repository.save).toHaveBeenCalledWith([sender, receiver]);
+    });
+
+    it('should throw NotFoundException if sender or receiver is not found', async () => {
+      repository.findOne
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(receiver);
+
+      await expect(service.transferBalance('invalid', 'user2', 10)).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw BadRequestException if sender has insufficient balance', async () => {
+      const lowBalanceSender = { ...sender, balance: 10 };
+
+      repository.findOne
+        .mockResolvedValueOnce(lowBalanceSender)
+        .mockResolvedValueOnce(receiver);
+
+      await expect(service.transferBalance('user1', 'user2', 50)).rejects.toThrow(BadRequestException);
+    });
+  });
 });

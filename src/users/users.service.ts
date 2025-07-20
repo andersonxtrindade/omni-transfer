@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users } from './entities/users.entity';
@@ -30,5 +30,25 @@ export class UsersService {
 
   async findByUsername(username: string): Promise<Users | null> {
     return this.userRepository.findOne({ where: { username } });
+  }
+
+  async transferBalance(fromId: string, toId: string, amount: number): Promise<void> {
+    const [sender, receiver] = await Promise.all([
+      this.userRepository.findOne({ where: { id: fromId } }),
+      this.userRepository.findOne({ where: { id: toId } }),
+    ]);
+
+    if (!sender || !receiver) {
+      throw new NotFoundException('Sender or receiver not found');
+    }
+
+    if (sender.balance < amount) {
+      throw new BadRequestException('Insufficient balance');
+    }
+
+    sender.balance = Number(sender.balance) - Number(amount);
+    receiver.balance = Number(receiver.balance) + Number(amount);
+
+    await this.userRepository.save([sender, receiver]);
   }
 }
