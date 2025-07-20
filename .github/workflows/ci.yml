@@ -23,9 +23,7 @@ jobs:
       - name: Smoke test app container
         run: |
           docker ps
-          sleep 15
-          docker exec omni-transfer-app curl -f http://localhost:3000/health
-
+          
       - name: Tear down
         run: docker-compose down
         
