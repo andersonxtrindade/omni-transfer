@@ -3,7 +3,7 @@ import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { TransfersService } from './transfers.service';
 import { CreateTransferDto } from './dtos/create-transfer.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { TransfersProducer } from './transfer.producer';
+import { TransfersProducer } from './transfers.producer';
 
 @Controller('transfer')
 @UseGuards(JwtAuthGuard)
